@@ -9,8 +9,9 @@ using namespace std;
 pthread_mutex_t monitor;
 pthread_cond_t red_citaca, red_pisaca, red_brisaca;
 
-int br_citaca = 10, br_pisaca = 4, br_brisaca = 0;
+int br_citaca = 10, br_pisaca = 4, br_brisaca = 1;
 int aktivni_citaci = 0, aktivni_pisaci = 0, aktivni_brisaci = 0;
+int cekaju_brisaci = 0;
 
 struct Node {
     int data;
@@ -112,7 +113,7 @@ void* citac(void* arg) {
         cout << "Citac " << id << " zeli procitati " << index + 1 <<". element iz liste\n";
         printState();
 
-        while (aktivni_brisaci > 0)
+        while (aktivni_brisaci > 0 || cekaju_brisaci > 0)
             pthread_cond_wait(&red_citaca, &monitor);
         aktivni_citaci++;
 
@@ -130,8 +131,9 @@ void* citac(void* arg) {
 
         pthread_mutex_lock(&monitor);
         aktivni_citaci--;
-        if (aktivni_citaci >= 0)
-            pthread_cond_signal(&red_citaca);
+        if (aktivni_citaci == 0 && cekaju_brisaci > 0)
+            pthread_cond_signal(&red_brisaca);
+        pthread_cond_signal(&red_citaca);
 
         cout << "Pisac " << id << " vise ne koristi listu\n";
         printState();
@@ -150,22 +152,22 @@ void* pisac(void* arg) {
         cout << "Pisac " << id << " zeli upisati vrijednost " << value << "  u listu\n";
         printState();
 
-        while (aktivni_pisaci > 0 || aktivni_brisaci > 0)
+        while (aktivni_pisaci > 0 || aktivni_brisaci > 0 || cekaju_brisaci > 0)
             pthread_cond_wait(&red_pisaca, &monitor);
         aktivni_pisaci++;
 
         lista.append(value);
         cout << "Pisac "<< id <<" upisuje vrijednost " << value << endl;
         printState();
-
         pthread_mutex_unlock(&monitor);
 
         sleep(rand() % 6 + 5);
 
         pthread_mutex_lock(&monitor);
         aktivni_pisaci--;
-        if (aktivni_pisaci == 0)
-            pthread_cond_signal(&red_pisaca);
+        if (aktivni_pisaci == 0 && cekaju_brisaci > 0)
+            pthread_cond_signal(&red_brisaca);
+        pthread_cond_signal(&red_pisaca);
 
         cout << "Pisac " << id << " vise ne koristi listu\n";
         printState();
@@ -179,21 +181,37 @@ void* brisac(void* arg) {
     const int id = static_cast<int>(reinterpret_cast<intptr_t>(arg));
     while (true) {
         pthread_mutex_lock(&monitor);
-        while (br_citaca > 0 || br_pisaca > 0 || br_brisaca > 0)
+        int index = rand() % lista.getSize();
+
+        cout << "Brisac " << id << " zeli obrisati " << index + 1 << ". element iz liste\n";
+        printState();
+
+        cekaju_brisaci++;
+        while (aktivni_brisaci > 0 || aktivni_citaci > 0 || aktivni_pisaci > 0)
             pthread_cond_wait(&red_brisaca, &monitor);
+        cekaju_brisaci--;
         aktivni_brisaci++;
 
-        //int index = rand() % lista.size();
-        //lista.erase(lista.begin() + index);
-        //cout << "Eraser erases element " << index << endl;
+        int value = lista.remove(index);
+        if (value == -1) {
+            cout << "Brisac " << id << " nije uspio obrisati " << index + 1 << ". element liste\n";
+        } else {
+            cout << "Brisac " << id << " brise " << index + 1 << ". element s vrijednoscu " << value << endl;
+        }
+        printState();
         pthread_mutex_unlock(&monitor);
 
         sleep(rand() % 6 + 5);
 
         pthread_mutex_lock(&monitor);
         aktivni_brisaci--;
-        if (aktivni_brisaci == 0)
-            pthread_cond_signal(&red_citaca);
+        if (aktivni_brisaci == 0) {
+            pthread_cond_broadcast(&red_citaca);
+            pthread_cond_broadcast(&red_pisaca);
+        }
+
+        cout << "Brisac " << id << " vise ne koristi listu\n";
+        printState();
         pthread_mutex_unlock(&monitor);
 
         sleep(rand() % 6 + 5);

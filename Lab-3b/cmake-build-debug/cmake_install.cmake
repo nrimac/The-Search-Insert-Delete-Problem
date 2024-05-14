@@ -1,4 +1,4 @@
-# Install script for directory: /home/niko/Desktop/The-Search-Insert-Delete-Problem
+# Install script for directory: /home/niko/Desktop/The-Search-Insert-Delete-Problem/Lab-3b
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/niko/Desktop/The-Search-Insert-Delete-Problem/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/niko/Desktop/The-Search-Insert-Delete-Problem/Lab-3b/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

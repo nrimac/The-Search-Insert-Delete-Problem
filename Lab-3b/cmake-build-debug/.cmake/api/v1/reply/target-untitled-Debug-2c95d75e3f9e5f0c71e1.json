@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "The_Search_Insert_Delete_Problem"
+			"path" : "untitled"
 		}
 	],
 	"backtrace" : 1,
@@ -53,7 +53,7 @@
 			]
 		}
 	],
-	"id" : "The_Search_Insert_Delete_Problem::@6890427a1f51a3e7e1df",
+	"id" : "untitled::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -69,8 +69,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "The_Search_Insert_Delete_Problem",
-	"nameOnDisk" : "The_Search_Insert_Delete_Problem",
+	"name" : "untitled",
+	"nameOnDisk" : "untitled",
 	"paths" : 
 	{
 		"build" : ".",
